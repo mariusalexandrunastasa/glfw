@@ -1,14 +1,12 @@
-/*!
+# Internal structure {#internals_guide}
 
-@page internals_guide Internal structure
-
-@tableofcontents
+[TOC]
 
 There are several interfaces inside GLFW.  Each interface has its own area of
 responsibility and its own naming conventions.
 
 
-@section internals_public Public interface
+## Public interface {#internals_public}
 
 The most well-known is the public interface, described in the glfw3.h header
 file.  This is implemented in source files shared by all platforms and these
@@ -22,7 +20,7 @@ it use headless camel case.
 Examples: `glfwCreateWindow`, `GLFWwindow`, `GLFW_RED_BITS`
 
 
-@section internals_native Native interface
+## Native interface {#internals_native}
 
 The [native interface](@ref native) is a small set of publicly available
 but platform-specific functions, described in the glfw3native.h header file and
@@ -36,7 +34,7 @@ from.
 Examples: `glfwGetX11Window`, `glfwGetWGLContext`
 
 
-@section internals_internal Internal interface
+## Internal interface {#internals_internal}
 
 The internal interface consists of utility functions used by all other
 interfaces.  It is shared code implemented in the same shared source files as
@@ -52,7 +50,7 @@ global names have a leading underscore.
 Examples: `_glfwIsValidContextConfig`, `_GLFWwindow`, `_glfw.monitorCount`
 
 
-@section internals_platform Platform interface
+## Platform interface {#internals_platform}
 
 The platform interface implements all platform-specific operations as a service
 to the public interface.  This includes event processing.  The platform
@@ -61,12 +59,21 @@ application-provided callbacks.  It is also prohibited from modifying the
 platform-independent part of the internal structs.  Instead, it calls the event
 interface when events interesting to GLFW are received.
 
-The platform interface mirrors those parts of the public interface that needs to
-perform platform-specific operations on some or all platforms.  The are also
-named the same except that the glfw function prefix is replaced by
-_glfwPlatform.
+The platform interface mostly mirrors those parts of the public interface that needs to
+perform platform-specific operations on some or all platforms.
 
-Examples: `_glfwPlatformCreateWindow`
+The window system bits of the platform API is called through the `_GLFWplatform` struct of
+function pointers, to allow runtime selection of platform.  This includes the window and
+context creation, input and event processing, monitor and Vulkan surface creation parts of
+GLFW.  This is located in the global `_glfw` struct.
+
+Examples: `_glfw.platform.createWindow`
+
+The timer, threading and module loading bits of the platform API are plain functions with
+a `_glfwPlatform` prefix, as these things are independent of what window system is being
+used.
+
+Examples: `_glfwPlatformGetTimerValue`
 
 The platform interface also defines structs that contain platform-specific
 global and per-object state.  Their names mirror those of the internal
@@ -81,7 +88,7 @@ prevents shared code from accidentally using these members.
 Examples: `window->win32.handle`, `_glfw.x11.display`
 
 
-@section internals_event Event interface
+## Event interface {#internals_event}
 
 The event interface is implemented in the same shared source files as the public
 interface and is responsible for delivering the events it receives to the
@@ -93,7 +100,7 @@ ObjectEvent pattern.
 Examples: `_glfwInputWindowFocus`, `_glfwInputCursorPos`
 
 
-@section internals_static Static functions
+## Static functions {#internals_static}
 
 Static functions may be used by any interface and have no prefixes or suffixes.
 These use headless camel case.
@@ -101,15 +108,13 @@ These use headless camel case.
 Examples: `isValidElementForJoystick`
 
 
-@section internals_config Configuration macros
+## Configuration macros {#internals_config}
 
 GLFW uses a number of configuration macros to select at compile time which
-interfaces and code paths to use.  They are defined in the glfw_config.h header file,
-which is generated from the `glfw_config.h.in` file by CMake.
+interfaces and code paths to use.  They are defined in the GLFW CMake target.
 
 Configuration macros the same style as tokens in the public interface, except
 with a leading underscore.
 
 Examples: `_GLFW_WIN32`, `_GLFW_BUILD_DLL`
 
-*/

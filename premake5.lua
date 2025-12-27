@@ -28,3 +28,17 @@ project "GLFW"
         }
     filter { "system:windows", "configurations:Release" }
         buildoptions "/MT"
+
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
+
+    filter "configurations:Release"
+        runtime "Release"
+        optimize "speed"
+
+    filter "configurations:Dist"
+        runtime "Release"
+        optimize "speed"
+        symbols "off"
+        vsprops { ["VcpkgConfiguration"] = "Release" }

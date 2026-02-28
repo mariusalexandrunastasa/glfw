@@ -15,24 +15,15 @@ project "GLFW"
     filter "system:windows"
         systemversion "latest"
         staticruntime "On"
+        defines { "_GLFW_WIN32", "_CRT_SECURE_NO_WARNINGS" }
 
-        files
-        {
-            "src/*.c",
-        }
-
-        defines
-        {
-            "_GLFW_WIN32",
-            "_CRT_SECURE_NO_WARNINGS"
-        }
-    filter { "system:windows", "configurations:Release" }
+    filter { "system:windows", "configurations:Release or Dist" }
         buildoptions "/MT"
 
     filter "system:linux"
         pic "On"
-        defines { "_GLFW_X11" }    -- Enable X11 backend
-        links { "X11", "pthread", "dl", "m", "GL" } -- required Linux libs
+        defines { "_GLFW_X11" }
+        links { "X11", "pthread", "dl", "m", "GL" }
         buildoptions { "-fPIC" }
 
     filter "configurations:Debug"
@@ -47,9 +38,6 @@ project "GLFW"
         runtime "Release"
         optimize "speed"
         symbols "off"
-        filter "system:windows"
-
-    filter { "configurations:Dist", "system:windows" }
-        if _G.vsprops then
+        if vsprops then
             vsprops { ["VcpkgConfiguration"] = "Release" }
         end
